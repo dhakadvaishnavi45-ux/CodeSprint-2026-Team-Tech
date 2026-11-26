@@ -2,7 +2,7 @@ Team Tech | CodeSprint 2026
 
 Welcome to the official GitHub repository of Team Tech for CodeSprint 2026.
 
-We are a collaborative team focused on problem-solving, logical thinking, innovation, and software development using C++.
+We are a collaborative team focused on problem-solving, logical thinking, innovation, and software development using HTML.
 
 👥 Team Members
 
@@ -13,23 +13,18 @@ We are a collaborative team focused on problem-solving, logical thinking, innova
 
 💻 Technologies
 
-- C++
+- HTML
 - Git
 - GitHub
-- chatgpt
+- claude ai
 
 📁 Repository Purpose
 
-This repository serves as our central workspace for:
+Our project is called PYQ and Notes Hub. It is designed to help students share and access previous year question papers and study notes on a common platform.
 
-- Source code
-- Problem-solving solutions
-- Project documentation
-- Testing and debugging
+Students can upload study materials, categorize them according to subjects and semesters, and find relevant resources using filters. The platform also includes upvoting, a preview modal and a contributor leaderboard.
 
-🎯 Our Objective
-
-To develop an effective, well-structured, and innovative solution to the problem statement assigned during CodeSprint 2026.
+The main objective is to make academic resources easily accessible, save students' time and encourage knowledge sharing.
 
 📌 Event Details
 
