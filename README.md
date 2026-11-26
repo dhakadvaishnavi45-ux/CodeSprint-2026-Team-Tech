@@ -7,9 +7,9 @@ We are a collaborative team focused on problem-solving, logical thinking, innova
 👥 Team Members
 
 1. Vaishnavi Dhakad – Team Leader
-2. Radhika Dhakad
-3. Spardha Jain
-4. Shubhi Bhargava
+2. Spardha Jain
+3. Shubhi Bhargava
+4. Radhika Dhakad
 
 💻 Technologies
 
