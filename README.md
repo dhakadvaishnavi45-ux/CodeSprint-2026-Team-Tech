@@ -14,9 +14,6 @@ We are a collaborative team focused on problem-solving, logical thinking, innova
 💻 Technologies
 
 - C++
-- html
-- javascript
-- css
 - Git
 - GitHub
 - chatgpt
