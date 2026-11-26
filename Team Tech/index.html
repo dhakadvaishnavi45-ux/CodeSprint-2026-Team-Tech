@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PYQ &amp; Notes Hub</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:#f4f6fb;color:#1f2937}
+header{background:#3730a3;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{margin:0;font-size:20px}
+header input{padding:6px 10px;border-radius:6px;border:0;width:150px}
+main{max-width:1100px;margin:18px auto;padding:0 14px;display:grid;grid-template-columns:2fr 1fr;gap:16px}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 4px #0001;margin-bottom:14px}
+h2{margin:0 0 10px;font-size:17px}
+label{display:block;font-size:13px;margin:8px 0 3px}
+input,select,textarea{width:100%;padding:7px;border:1px solid #cbd5e1;border-radius:6px;font:inherit}
+button{background:#4f46e5;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;font:inherit}
+button.sec{background:#e0e7ff;color:#3730a3}
+button:disabled{background:#cbd5e1;color:#64748b;cursor:default}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.post{display:flex;gap:12px;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:10px;margin-top:10px}
+.vote{text-align:center;min-width:54px}
+.vote b{display:block;font-size:18px}
+.info{flex:1}
+.info h3{margin:0 0 4px;font-size:15px}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#e0e7ff;color:#3730a3;margin-right:4px}
+.tag.pyq{background:#fee2e2;color:#991b1b}.tag.notes{background:#dcfce7;color:#166534}
+.muted{color:#64748b;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px;border-bottom:1px solid #e5e7eb;text-align:left}
+#modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;padding:14px}
+#modal.show{display:flex}
+.box{background:#fff;border-radius:10px;max-width:680px;width:100%;max-height:90vh;overflow:auto;padding:18px}
+.box pre{white-space:pre-wrap;background:#f1f5f9;padding:10px;border-radius:6px;font-family:inherit}
+.box img,.box iframe{max-width:100%;width:100%;border:0;border-radius:6px}
+.box iframe{height:380px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 PYQ &amp; Notes Hub</h1>
+  <div>Your name: <input id="user" placeholder="Enter name" maxlength="20"></div>
+</header>
+
+<main>
+  <section>
+    <div class="card">
+      <h2>Browse Feed</h2>
+      <div class="filters">
+        <input id="q" placeholder="Search title / subject">
+        <select id="fSub"><option value="">All subjects</option></select>
+        <select id="fSem"><option value="">All semesters</option></select>
+        <select id="fType"><option value="">PYQ + Notes</option><option>PYQ</option><option>Notes</option></select>
+        <select id="fSort"><option value="votes">Top voted</option><option value="new">Newest</option></select>
+      </div>
+      <div id="feed"></div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="card">
+      <h2>Upload PYQ / Notes</h2>
+      <form id="form">
+        <label>Title</label><input id="title" required maxlength="80">
+        <label>Subject</label><input id="subject" required maxlength="40" placeholder="e.g. Physics">
+        <label>Semester</label>
+        <select id="sem"></select>
+        <label>Type</label>
+        <select id="type"><option>PYQ</option><option>Notes</option></select>
+        <label>Description / preview text</label><textarea id="desc" rows="4"></textarea>
+        <label>File (optional: image, PDF or text, max 400 KB)</label>
+        <input type="file" id="file" accept="image/*,.pdf,.txt">
+        <br><br><button type="submit">Upload</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>🏆 Contributor Leaderboard</h2>
+      <div class="muted">10 pts per upload + 5 pts per upvote received</div>
+      <table id="board"></table>
+    </div>
+  </aside>
+</main>
+
+<div id="modal"><div class="box" id="modalBox"></div></div>
+
+<script>
+const KEY = "pyqHub.posts", UKEY = "pyqHub.user";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+let posts = JSON.parse(localStorage.getItem(KEY) || "null");
+if (!posts) {
+  posts = [
+    {id:1,title:"Engg Physics PYQ 2023",subject:"Physics",sem:1,type:"PYQ",by:"Aarav",desc:"Q1. Explain Bragg's law.\nQ2. Derive the Schrodinger time-independent equation.\nQ3. Define Fermi level.",voters:["Riya","Kabir","Meera"],time:3},
+    {id:2,title:"DSA Unit 2 Notes",subject:"Data Structures",sem:3,type:"Notes",by:"Riya",desc:"Stacks, queues, linked lists.\nStack = LIFO, Queue = FIFO.",voters:["Aarav","Kabir"],time:2},
+    {id:3,title:"Maths-II PYQ 2022",subject:"Mathematics",sem:2,type:"PYQ",by:"Kabir",desc:"Q1. Solve y'' + 4y = 0.\nQ2. Laplace transform of sin(at).",voters:["Riya"],time:1}
+  ];
+  save();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(posts)); }
+  catch (e) { alert("Storage full. Try a smaller file."); }
+}
+const user = () => $("user").value.trim();
+$("user").value = localStorage.getItem(UKEY) || "";
+$("user").onchange = () => { localStorage.setItem(UKEY, user()); render(); };
+
+// semester dropdowns
+for (let i = 1; i <= 8; i++) {
+  $("sem").add(new Option("Semester " + i, i));
+  $("fSem").add(new Option("Semester " + i, i));
+}
+
+function render() {
+  // subject filter options
+  const cur = $("fSub").value;
+  const subs = [...new Set(posts.map(p => p.subject))].sort();
+  $("fSub").innerHTML = '<option value="">All subjects</option>' + subs.map(s => `<option ${s===cur?"selected":""}>${esc(s)}</option>`).join("");
+
+  const q = $("q").value.toLowerCase(), sub = $("fSub").value, sem = $("fSem").value, ty = $("fType").value;
+  let list = posts.filter(p =>
+    (!q || (p.title + " " + p.subject).toLowerCase().includes(q)) &&
+    (!sub || p.subject === sub) && (!sem || p.sem == sem) && (!ty || p.type === ty));
+  list.sort($("fSort").value === "votes" ? (a, b) => b.voters.length - a.voters.length || b.id - a.id : (a, b) => b.id - a.id);
+
+  $("feed").innerHTML = list.length ? list.map(p => {
+    const voted = p.voters.includes(user()), own = p.by === user();
+    return `<div class="post">
+      <div class="vote"><b>${p.voters.length}</b>
+        <button ${voted||own||!user()?"disabled":""} onclick="upvote(${p.id})">${voted?"Voted":"▲ Vote"}</button></div>
+      <div class="info"><h3>${esc(p.title)}</h3>
+        <span class="tag ${p.type.toLowerCase()}">${p.type}</span><span class="tag">${esc(p.subject)}</span><span class="tag">Sem ${p.sem}</span>
+        <div class="muted">by ${esc(p.by)}</div></div>
+      <button class="sec" onclick="preview(${p.id})">Preview</button></div>`;
+  }).join("") : '<p class="muted">No posts match your filters.</p>';
+
+  // leaderboard
+  const m = {};
+  posts.forEach(p => { const r = m[p.by] ||= {n:p.by, up:0, v:0}; r.up++; r.v += p.voters.length; });
+  const rows = Object.values(m).map(r => ({...r, pts: r.up * 10 + r.v * 5})).sort((a, b) => b.pts - a.pts);
+  $("board").innerHTML = "<tr><th>#</th><th>Name</th><th>Uploads</th><th>Pts</th></tr>" +
+    rows.map((r, i) => `<tr><td>${["🥇","🥈","🥉"][i] || i + 1}</td><td>${esc(r.n)}</td><td>${r.up}</td><td>${r.pts}</td></tr>`).join("");
+}
+
+function upvote(id) {
+  if (!user()) return alert("Enter your name first.");
+  const p = posts.find(x => x.id === id);
+  if (p.by === user() || p.voters.includes(user())) return;
+  p.voters.push(user()); save(); render();
+}
+
+function preview(id) {
+  const p = posts.find(x => x.id === id);
+  let file = "";
+  if (p.file) {
+    if (p.file.startsWith("data:image")) file = `<img src="${p.file}" alt="attachment">`;
+    else if (p.file.startsWith("data:application/pdf")) file = `<iframe src="${p.file}"></iframe>`;
+    else file = `<p><a href="${p.file}" download="${esc(p.fileName||"file")}">Download attachment</a></p>`;
+  }
+  $("modalBox").innerHTML = `<h2>${esc(p.title)}</h2>
+    <span class="tag ${p.type.toLowerCase()}">${p.type}</span><span class="tag">${esc(p.subject)}</span><span class="tag">Sem ${p.sem}</span>
+    <p class="muted">Uploaded by ${esc(p.by)} · ${p.voters.length} upvote(s)</p>
+    <pre>${esc(p.desc || "(no description)")}</pre>${file}
+    <button onclick="closeModal()">Close</button>`;
+  $("modal").classList.add("show");
+}
+const closeModal = () => $("modal").classList.remove("show");
+$("modal").onclick = e => { if (e.target.id === "modal") closeModal(); };
+document.onkeydown = e => { if (e.key === "Escape") closeModal(); };
+
+$("form").onsubmit = e => {
+  e.preventDefault();
+  if (!user()) return alert("Enter your name at the top first.");
+  const f = $("file").files[0];
+  const add = (file, fileName) => {
+    posts.push({id: Date.now(), title: $("title").value.trim(), subject: $("subject").value.trim(),
+      sem: +$("sem").value, type: $("type").value, by: user(), desc: $("desc").value.trim(),
+      voters: [], file, fileName});
+    save(); $("form").reset(); render();
+  };
+  if (!f) return add();
+  if (f.size > 400 * 1024) return alert("File too large (max 400 KB).");
+  const r = new FileReader();
+  r.onload = () => add(r.result, f.name);
+  r.readAsDataURL(f);
+};
+
+["q", "fSub", "fSem", "fType", "fSort"].forEach(id => $(id).oninput = render);
+render();
+</script>
+</body>
+</html>
